@@ -19,7 +19,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		log.Fatal("Port is not configurated")
+		port = "8080"
 	}
 
 	shutdown_ctx, shutdown_cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -49,14 +49,14 @@ func main() {
 		req, _ := http.NewRequestWithContext(request_ctx, http.MethodGet, "https://codechallenge.boohma.com/random", nil)
 		response, ok := client.Do(req)
 		if ok != nil {
-			log.Fatalf("Error while requesting random number %s", ok)
+			log.Printf("Error while requesting random number %s", ok)
 		}
 		defer response.Body.Close()
 		body, err := io.ReadAll(response.Body)
 		if err != nil {
 			log.Fatalf("Error while extracting body of request %s", err)
 		}
-		var jsonRes map[string]interface{} // declaring a map for key names as string and values as interface
+		var jsonRes map[string]interface{}
 		_ = json.Unmarshal(body, &jsonRes)
 		choice_id := internals.GenerateRandomChoice(int(jsonRes["random_number"].(float64)))
 		res := map[string]interface{}{
@@ -75,7 +75,7 @@ func main() {
 		req, _ := http.NewRequestWithContext(request_ctx, http.MethodGet, "https://codechallenge.boohma.com/random", nil)
 		response, ok := client.Do(req)
 		if ok != nil {
-			log.Fatalf("Error while requesting random number %s", ok)
+			log.Printf("Error while requesting random number %s", ok)
 		}
 		defer response.Body.Close()
 		body, err := io.ReadAll(response.Body)
