@@ -57,8 +57,8 @@ func main() {
 			log.Fatalf("Error while extracting body of request %s", err)
 		}
 		var jsonRes map[string]interface{}
-		_ = json.Unmarshal(body, &jsonRes)
-		choice_id := internals.GenerateRandomChoice(int(jsonRes["random_number"].(float64)))
+		json.Unmarshal(body, &jsonRes)
+		choice_id := internals.AnnounceRandomChoice(int(jsonRes["random_number"].(float64)))
 		res := map[string]interface{}{
 			"id":   choice_id,
 			"name": internals.Choices[choice_id],
@@ -72,6 +72,15 @@ func main() {
 	})
 	http.HandleFunc("/play", func(w http.ResponseWriter, r *http.Request) {
 
+		initial_body, err := io.ReadAll(r.Body)
+
+		if err != nil {
+			log.Fatalf("Error while extracting body of request %s", err)
+		}
+		var json_r map[string]interface{}
+		json.Unmarshal(initial_body, &json_r)
+		player_choice_id := int(json_r["player"].(float64))
+
 		req, _ := http.NewRequestWithContext(request_ctx, http.MethodGet, "https://codechallenge.boohma.com/random", nil)
 		response, ok := client.Do(req)
 		if ok != nil {
@@ -82,9 +91,21 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error while extracting body of request %s", err)
 		}
-		// choice := internals.GenerateRandomChoice()
+		var json_response map[string]interface{}
+		_ = json.Unmarshal(body, &json_response)
+		computer_choice_id := internals.AnnounceRandomChoice(int(json_response["random_number"].(float64)))
+		outcome := internals.ResultCalculator(player_choice_id, computer_choice_id)
+		res := map[string]interface{}{
+			"results":  outcome,
+			"player":   player_choice_id,
+			"computer": computer_choice_id,
+		}
+		json_res, err := json.Marshal(res)
+		if err != nil {
+			log.Fatalf("Error while  marshal json %s", err)
+		}
 		w.WriteHeader(http.StatusOK)
-		w.Write(body)
+		w.Write(json_res)
 	})
 
 	server := http.Server{Addr: ":" + port}

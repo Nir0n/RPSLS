@@ -1,6 +1,6 @@
 package internals
 
-func GenerateRandomChoice(rand int) int {
+func AnnounceRandomChoice(rand int) int {
 	switch {
 	case rand <= 20:
 		return 1
@@ -15,7 +15,8 @@ func GenerateRandomChoice(rand int) int {
 	}
 }
 
-// func ResultCalculator(choice1 int, choice2 int) string {
-// 	Outcomes
+func ResultCalculator(choice1 int, choice2 int) string {
+	res := Combinations[choice1*10+choice2]
+	return Outcomes[res]
 
-// }
+}
