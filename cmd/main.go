@@ -22,9 +22,9 @@ func main() {
 		port = "8080"
 	}
 
-	shutdown_ctx, shutdown_cancel := context.WithTimeout(context.Background(), 150*time.Second)
+	shutdown_ctx, shutdown_cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer shutdown_cancel()
-	request_ctx, request_cancel := context.WithTimeout(context.Background(), 300*time.Second)
+	request_ctx, request_cancel := context.WithTimeout(context.Background(), 50*time.Second)
 	defer request_cancel()
 
 	client := http.Client{}
