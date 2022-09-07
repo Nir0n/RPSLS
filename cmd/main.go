@@ -125,10 +125,9 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write(json_res)
 	})
-
-	<-signal_ch
 	shutdown_ctx, shutdown_cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer shutdown_cancel()
+	<-signal_ch
 	shutdown_err := server.Shutdown(shutdown_ctx)
 	if shutdown_err != nil {
 		log.Fatalf("Something went wrong during shutdown: %s", shutdown_err)
