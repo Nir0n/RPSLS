@@ -22,11 +22,6 @@ func main() {
 		port = "8080"
 	}
 
-	shutdown_ctx, shutdown_cancel := context.WithTimeout(context.Background(), 100*time.Second)
-	defer shutdown_cancel()
-	request_ctx, request_cancel := context.WithTimeout(context.Background(), 50*time.Second)
-	defer request_cancel()
-
 	client := http.Client{}
 
 	signal_ch := make(chan os.Signal, 1)
@@ -51,6 +46,8 @@ func main() {
 	})
 
 	http.HandleFunc("/choice", func(w http.ResponseWriter, r *http.Request) {
+		request_ctx, request_cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer request_cancel()
 		var choices = map[int]string{1: "rock", 2: "paper", 3: "scissors", 4: "lizard", 5: "spock"}
 		req, _ := http.NewRequestWithContext(request_ctx, http.MethodGet, "https://codechallenge.boohma.com/random", nil)
 		response, ok := client.Do(req)
@@ -84,7 +81,8 @@ func main() {
 	})
 
 	http.HandleFunc("/play", func(w http.ResponseWriter, r *http.Request) {
-
+		request_ctx, request_cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer request_cancel()
 		initial_body, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("Error while extracting body of request %s", err)
@@ -129,6 +127,8 @@ func main() {
 	})
 
 	<-signal_ch
+	shutdown_ctx, shutdown_cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdown_cancel()
 	shutdown_err := server.Shutdown(shutdown_ctx)
 	if shutdown_err != nil {
 		log.Fatalf("Something went wrong during shutdown: %s", shutdown_err)
